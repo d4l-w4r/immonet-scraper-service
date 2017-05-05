@@ -10,6 +10,7 @@
     "fs": "0.0.1-security",
     "immowelt-scraper": "^1.0.2",
     "method-override": "^2.3.8",
+    "time-stamp": "^1.0.1",
     "underscore": "^1.8.3"
   }
 }

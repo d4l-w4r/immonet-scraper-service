@@ -32,7 +32,10 @@ app.get('/api/entry/:entryId', function(req, res) {
 });
 
 // start server
-scraperInstance.start();
-setInterval(function() { scraperInstance.start(); }, (60 * 1000) * 10) // restart every 10 minutes
+var isInitialScrape = storeObj.getEntries.length == 0;
+scraperInstance.start(isInitialScrape);
+if (!isInitialScrape) {
+  setInterval(function() { scraperInstance.start(); }, (60 * 1000) * 10) // restart every 10 minutes
+}
 app.listen(1234);
 console.log("Scraper service running on http://localhost:1234");

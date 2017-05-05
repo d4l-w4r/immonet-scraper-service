@@ -1,5 +1,6 @@
 const fs = require('fs');
-const _ = require('underscore')
+const timeStamp = require('time-stamp');
+const _ = require('underscore');
 
 
 /*
@@ -45,6 +46,7 @@ module.exports.Store = function() {
     if(_.has(store.db, _id)) {
       console.log("ERROR: The item you tried to save seems to have the same ID as an item already present in the DB.");
     } else {
+      entry['scraper-timestamp'] = timeStamp("YYYY:MM:DD:HH:mm:ss");
       writeEntry(entry);
       saveDB();
     }
@@ -56,9 +58,11 @@ module.exports.Store = function() {
      });
      console.log("Adding " + uniqueEntries.length + " new entries");
     _.each(uniqueEntries, function (entry) {
+      entry['scraper-timestamp'] = timeStamp("YYYY:MM:DD:HH:mm:ss");
       writeEntry(entry);
     });
     saveDB();
+    return uniqueEntries.length;
   }
 
   this.getEntry = function(id) {
