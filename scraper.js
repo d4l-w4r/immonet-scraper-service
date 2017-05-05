@@ -1,0 +1,55 @@
+const scraper = require('immowelt-scraper');
+const _ = require('underscore');
+const store = require('./storage/store');
+const STOP_MESSAGE = "Stopping scraper";
+
+module.exports.ImmoweltScraper = function(scrapeTarget, storage) {
+
+  var city = scrapeTarget;
+  var entryStore = storage;
+  var maxPage = 10;
+  var currentPage = 1;
+  var retryOnFail = true;
+  var runningPromise = null;
+
+  this.start = function() {
+    console.log("Starting to scrape Immowelt");
+    currentPage = 1;
+    scrapePage(currentPage);
+  };
+
+  var stop = function() {
+    retryOnFail = false;
+    runningPromise = null
+    console.log("Scraping stopped");
+  }
+
+  var onPromiseSuccess = function (result) {
+      entryStore.addEntries(result['items']);
+      if (currentPage < maxPage) {
+        ++currentPage;
+        var delay =  _.random(5, 30) * 1000;
+        console.log("Delaying " + delay / 1000 + " seconds.");
+        _.delay(scrapePage, delay, currentPage);
+      } else {
+        stop();
+      }
+  };
+
+  var onPromiseReject = function(reason) {
+    console.console.log(reason);
+    if (retryOnFail) {
+      scrapePage(currentPage);
+    } else {
+      return;
+    }
+  };
+
+  var scrapePage = function(page) {
+    console.log("Scraping page " + page);
+    runningPromise = scraper.scrapCity(city, page).then(
+      function(result) { onPromiseSuccess(result); },
+      function(reason) { onPromiseReject(reason); }
+    );
+  };
+};
